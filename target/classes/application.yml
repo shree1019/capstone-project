@@ -3,10 +3,11 @@ spring:
     name: money-transfer-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/money_transfer
-    username: root
-    password: money_password
+    url: jdbc:mysql://localhost:3306/money_transfer_db
+    username: user
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
+  
 
   jpa:
     hibernate:
@@ -32,8 +33,11 @@ server:
 logging:
   level:
     root: INFO
-    org.springframework.web: INFO
-    com.example.moneytransfer: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
 
 management:
   endpoints:
@@ -44,7 +48,8 @@ management:
 security:
   jwt:
     # Replace with a strong secret in production (at least 256 bits for HS256)
-    secret: "change-this-secret-in-production-very-long-and-random"
+    # This secret is 64 characters (512 bits) - sufficient for HS256
+    secret: "change-this-secret-in-production-very-long-and-random-key-must-be-at-least-256-bits-for-security"
     # Token validity in seconds (e.g. 1 hour)
     expiration-seconds: 3600
 
