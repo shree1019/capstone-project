@@ -56,8 +56,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
+                    
+                    log.debug("Successfully authenticated user: {}", username);
+                } else {
+                    log.warn("JWT token validation failed for user: {}", username);
                 }
             }
+        } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+            log.warn("JWT token has expired: {}", ex.getMessage());
+        } catch (io.jsonwebtoken.MalformedJwtException ex) {
+            log.warn("Invalid JWT token format: {}", ex.getMessage());
+        } catch (io.jsonwebtoken.security.SignatureException ex) {
+            log.warn("JWT signature validation failed: {}", ex.getMessage());
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException ex) {
+            log.warn("User not found: {}", ex.getMessage());
         } catch (Exception ex) {
             log.warn("JWT authentication failed: {}", ex.getMessage());
         }

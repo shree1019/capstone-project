@@ -43,24 +43,47 @@ public class JwtTokenProvider {
     }
 
     public String getUsernameFromToken(String token) {
-        return parseClaims(token).getBody().getSubject();
+        try {
+            return parseClaims(token).getBody().getSubject();
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token: " + e.getMessage(), e);
+        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        String username = getUsernameFromToken(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        try {
+            String username = getUsernameFromToken(token);
+            boolean isValid = username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            return isValid;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
-        Date expiration = parseClaims(token).getBody().getExpiration();
-        return expiration.before(new Date());
+        try {
+            Date expiration = parseClaims(token).getBody().getExpiration();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            return true; // If we can't parse, consider expired
+        }
     }
 
     private Jws<Claims> parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token);
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            throw new RuntimeException("JWT token has expired", e);
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            throw new RuntimeException("Invalid JWT token format", e);
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            throw new RuntimeException("JWT signature validation failed", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JWT token", e);
+        }
     }
 }
 

@@ -44,7 +44,8 @@ management:
 security:
   jwt:
     # Replace with a strong secret in production (at least 256 bits for HS256)
-    secret: "change-this-secret-in-production-very-long-and-random"
+    # This secret is 64 characters (512 bits) - sufficient for HS256
+    secret: "change-this-secret-in-production-very-long-and-random-key-must-be-at-least-256-bits-for-security"
     # Token validity in seconds (e.g. 1 hour)
     expiration-seconds: 3600
 
